@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cronograma 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f8f7f4;
+    --surface: #fff;
+    --border: #e4e1d9;
+    --ink: #1c1c1a;
+    --muted: #888880;
+    --c-entrega: #1a5c30;    --c-entrega-bg: #e6f4ec;
+    --c-sesion: #0d3d7a;     --c-sesion-bg: #e3edf8;
+    --c-seminario: #5c1a72;  --c-seminario-bg: #f2e6f7;
+    --c-vac: #555550;        --c-vac-bg: #ededea;
+    --c-opt: #7a3300;        --c-opt-bg: #fce8d8;
+    --c-opt-entrega: #3d5c1a; --c-opt-entrega-bg: #eaf2dc;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg); color: var(--ink);
+    padding: 2rem 1.25rem 5rem; font-size: 14px;
+  }
+
+  header {
+    max-width: 860px; margin: 0 auto 1.5rem;
+    border-bottom: 2px solid var(--ink); padding-bottom: 1rem;
+  }
+  header h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; }
+  header p {
+    color: var(--muted); font-size: 0.78rem; margin-top: 0.25rem;
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+
+  /* Horario note */
+  .horario-note {
+    max-width: 860px; margin: 0 auto 1.25rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem; font-weight: 500; color: var(--ink);
+    letter-spacing: 0.04em; padding: 0.4rem 0.75rem;
+    background: #f0f0ec; border-left: 3px solid var(--ink);
+    border-radius: 0 4px 4px 0;
+  }
+
+  /* Optativos selector */
+  .opt-section {
+    max-width: 860px; margin: 0 auto 1.5rem;
+    padding: 1rem 1.1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .opt-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--muted); margin-bottom: 0.7rem;
+  }
+  .opt-buttons {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+  }
+  .opt-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 0.35rem 0.85rem; border-radius: 4px;
+    border: 1.5px solid var(--border);
+    background: var(--bg); color: var(--muted);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .opt-btn:hover { border-color: var(--c-opt); color: var(--c-opt); }
+  .opt-btn.active {
+    background: var(--c-opt); color: #fff;
+    border-color: var(--c-opt);
+  }
+
+  /* Legend */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem;
+    max-width: 860px; margin: 0 auto 1.25rem;
+  }
+  .leg {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.72rem; font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted);
+  }
+  .leg-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+  /* Print button */
+  .print-btn {
+    display: block; max-width: 860px;
+    margin: 0 auto 1.5rem; text-align: right;
+  }
+  .print-btn button {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em;
+    background: var(--ink); color: #fff; border: none;
+    padding: 0.45rem 1rem; border-radius: 4px; cursor: pointer;
+  }
+  .print-btn button:hover { opacity: 0.85; }
+  .print-hint {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.55rem; color: #bbb;
+    letter-spacing: 0.03em; margin-top: 0.25rem;
+  }
+
+  /* Calendar */
+  .months-wrap { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; }
+  .month-block { border: 1px solid var(--border); overflow: hidden; margin-bottom: -1px; }
+  .month-block:first-child { border-radius: 8px 8px 0 0; }
+  .month-block:last-child  { border-radius: 0 0 8px 8px; margin-bottom: 0; }
+
+  .month-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.6rem 1rem; background: var(--ink); color: #fff;
+    cursor: pointer; user-select: none;
+  }
+  .month-head h2 {
+    font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .month-head .meta {
+    font-size: 0.68rem; font-family: 'IBM Plex Mono', monospace;
+    opacity: 0.6; display: flex; gap: 1rem; align-items: center;
+  }
+  .chevron { transition: transform 0.2s; font-size: 0.7rem; }
+  .month-block.collapsed .chevron { transform: rotate(-90deg); }
+  .month-block.collapsed .month-body { display: none; }
+
+  .week-row {
+    display: grid; grid-template-columns: 100px 1fr;
+    border-top: 1px solid var(--border); min-height: 36px;
+  }
+  .week-row:first-child { border-top: none; }
+
+  .week-meta {
+    padding: 0.5rem 0.75rem; border-right: 1px solid var(--border);
+    background: #faf9f6; display: flex; flex-direction: column; justify-content: center;
+  }
+  .week-meta.is-vac { background: var(--c-vac-bg); }
+
+  .week-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink);
+  }
+  .week-dates {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem;
+    color: var(--muted); margin-top: 1px;
+  }
+  .week-acts {
+    padding: 0.4rem 0.75rem;
+    display: flex; flex-direction: column; gap: 0.25rem; justify-content: center;
+  }
+
+  .act { display: inline-flex; align-items: baseline; gap: 0.4rem; font-size: 0.76rem; line-height: 1.3; }
+  .act-date {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem;
+    font-weight: 500; min-width: 44px; color: var(--muted);
+  }
+  .act-pill {
+    display: inline-block; padding: 0.15rem 0.5rem;
+    border-radius: 3px; font-size: 0.73rem; line-height: 1.4;
+  }
+
+  .pill-entrega   { background: var(--c-entrega-bg);   color: var(--c-entrega); }
+  .pill-sesion    { background: var(--c-sesion-bg);    color: var(--c-sesion); }
+  .pill-seminario { background: var(--c-seminario-bg); color: var(--c-seminario); }
+  .pill-vac       { background: var(--c-vac-bg);       color: var(--c-vac); }
+  .pill-opcional  { background: #fff8e6; color: #7a5c00; border: 1px dashed #c8a020; }
+  .pill-opt       { background: var(--c-opt-bg);       color: var(--c-opt); }
+  .pill-opt-entrega { background: var(--c-opt-entrega-bg); color: var(--c-opt-entrega); }
+
+  .week-empty .week-acts { color: #bbb; font-style: italic; font-size: 0.7rem; }
+
+  /* Optativo rows — hidden by default */
+  .act-opt { display: none; }
+  .act-opt.visible { display: inline-flex; }
+
+  @page { margin: 15mm; size: A4; }
+
+  @media print {
+    .print-btn, .print-hint, .opt-section { display: none !important; }
+    body { background: #fff !important; padding: 0 !important; font-size: 11px;
+           -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    header { margin: 0 0 1rem; }
+    .month-block.collapsed .month-body { display: block !important; }
+    .chevron, .meta { display: none !important; }
+    .week-row { page-break-inside: avoid; break-inside: avoid; }
+    .month-block { page-break-inside: avoid; break-inside: avoid; border-radius: 0 !important; }
+    .month-head { background: #1c1c1a !important; color: #fff !important; }
+    .pill-entrega   { background: #e6f4ec !important; color: #1a5c30 !important; }
+    .pill-sesion    { background: #e3edf8 !important; color: #0d3d7a !important; }
+    .pill-seminario { background: #f2e6f7 !important; color: #5c1a72 !important; }
+    .pill-vac       { background: #ededea !important; color: #555550 !important; }
+    .pill-opt       { background: #fce8d8 !important; color: #7a3300 !important; }
+    .pill-opt-entrega { background: #eaf2dc !important; color: #3d5c1a !important; }
+    .week-meta      { background: #faf9f6 !important; }
+    .week-meta.is-vac { background: #ededea !important; }
+    .act-opt.visible { display: inline-flex !important; }
+  }
+
+  @media (max-width: 560px) {
+    .week-row { grid-template-columns: 80px 1fr; }
+    .act-date { min-width: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Cronograma 2026</h1>
+  <p>Marzo – Noviembre · Obligatorias + Cursos Optativos</p>
+</header>
+
+<div class="horario-note">
+  Horario sincrónicos: 9:00 a 11:00 hs<br>
+  <span style="color:#0d3d7a">(*) UC2_SIR Sincrónicos 2, 3, 5 y 7: duración 3 hs — 9:00 a 12:00 hs</span><br>
+  <span style="color:#7a3300">(**) CO_Transiciones Productivas Sostenibles: horario vespertino — a partir de las 17:00 hs</span>
+</div>
+
+<div class="opt-section">
+  <div class="opt-title">Cursos optativos — seleccioná los de tu interés para ver sus fechas</div>
+  <div class="opt-buttons">
+    <button class="opt-btn" data-course="eco"          onclick="toggleCourse('eco',          this)">SO_Evaluación y Ecosistemas de Impacto</button>
+    <button class="opt-btn" data-course="obs"          onclick="toggleCourse('obs',          this)">SO_Observatorio FCEyA</button>
+    <button class="opt-btn" data-course="ia"           onclick="toggleCourse('ia',           this)">SO_IA en Evaluación</button>
+    <button class="opt-btn" data-course="abordajes"    onclick="toggleCourse('abordajes',    this)">CO_Abordajes Emergentes Sostenibilidad y Empresas</button>
+    <button class="opt-btn" data-course="finanzas"     onclick="toggleCourse('finanzas',     this)">CO_Introducción a las Finanzas Sostenibles</button>
+    <button class="opt-btn" data-course="transiciones" onclick="toggleCourse('transiciones', this)">CO_Transiciones Productivas Sostenibles</button>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="leg"><div class="leg-dot" style="background:#e6f4ec;border:1px solid #1a5c30"></div> Entrega</div>
+  <div class="leg"><div class="leg-dot" style="background:#e3edf8;border:1px solid #0d3d7a"></div> Sincrónico UC/SIR</div>
+  <div class="leg"><div class="leg-dot" style="background:#f2e6f7;border:1px solid #5c1a72"></div> Seminario Transversal</div>
+  <div class="leg"><div class="leg-dot" style="background:#ededea;border:1px solid #555550"></div> Vacaciones</div>
+  <div class="leg"><div class="leg-dot" style="background:#fff8e6;border:1px dashed #c8a020"></div> Opcional</div>
+  <div class="leg"><div class="leg-dot" style="background:#fce8d8;border:1px solid #7a3300"></div> Optativo (sesión)</div>
+  <div class="leg"><div class="leg-dot" style="background:#eaf2dc;border:1px solid #3d5c1a"></div> Optativo (entrega)</div>
+</div>
+
+<div class="print-btn">
+  <button onclick="window.print()">⬇ Guardar como PDF</button>
+  <div class="print-hint">Al imprimir: desmarcar "Encabezados y pies de página"</div>
+</div>
+
+<div class="months-wrap" id="cal"></div>
+
+<script>
+// Courses active state
+const activeCourses = new Set();
+
+function toggleCourse(id, btn) {
+  if (activeCourses.has(id)) {
+    activeCourses.delete(id);
+    btn.classList.remove('active');
+  } else {
+    activeCourses.add(id);
+    btn.classList.add('active');
+  }
+  document.querySelectorAll('.act-opt').forEach(el => {
+    const course = el.dataset.course;
+    el.classList.toggle('visible', activeCourses.has(course));
+  });
+  // Refresh empty rows
+  document.querySelectorAll('.week-row').forEach(row => {
+    const dash = row.querySelector('.dash-empty');
+    if (!dash) return;
+    const hasVisible = [...row.querySelectorAll('.act-opt')].some(e => e.classList.contains('visible'));
+    dash.style.display = hasVisible ? 'none' : '';
+  });
+}
+
+const pillClass = {
+  entrega: 'pill-entrega', sesion: 'pill-sesion',
+  seminario: 'pill-seminario', vac: 'pill-vac',
+  opcional: 'pill-opcional', opt: 'pill-opt', 'opt-entrega': 'pill-opt-entrega'
+};
+
+// Data: each act has optional `course` field for optativos
+const data = [
+  {
+    month: "Marzo",
+    weeks: [
+      { label: "Sem 1", dates: "1–7",     isVac: false, acts: [] },
+      { label: "Sem 2", dates: "8–14",    isVac: false, acts: [
+        { date: "Mié 11", label: "UC1_NE · Sincrónico 1", type: "sesion" }
+      ]},
+      { label: "Sem 3", dates: "15–21",   isVac: false, acts: [] },
+      { label: "Sem 4", dates: "22–28",   isVac: false, acts: [
+        { date: "Mar 24", label: "Entrega_UC1_T1", type: "entrega" },
+        { date: "Mié 25", label: "UC1_NE · Sincrónico 2", type: "sesion" }
+      ]},
+      { label: "Sem 5", dates: "29–31",   isVac: false, acts: [] }
+    ]
+  },
+  {
+    month: "Abril",
+    weeks: [
+      { label: "Sem 1", dates: "1–4",     isVac: true,  acts: [] },
+      { label: "Sem 2", dates: "5–11",    isVac: false, acts: [
+        { date: "Mié 8",  label: "UC1_NE · Sincrónico 3", type: "sesion" }
+      ]},
+      { label: "Sem 3", dates: "12–18",   isVac: false, acts: [
+        { date: "Mié 15", label: "Seminario Transversal I", type: "seminario" }
+      ]},
+      { label: "Sem 4", dates: "19–25",   isVac: false, acts: [
+        { date: "Mié 22", label: "UC1_NE · Sincrónico 4", type: "sesion" }
+      ]},
+      { label: "Sem 5", dates: "26–30",   isVac: false, acts: [
+        { date: "Mié 29", label: "Difusión cursos optativos (opcional — grabación disponible)", type: "opcional" }
+      ]}
+    ]
+  },
+  {
+    month: "Mayo",
+    weeks: [
+      { label: "Sem 1", dates: "1–9",     isVac: false, acts: [
+        { date: "Lun 4",  label: "Entrega ST_I", type: "entrega" },
+        { date: "Mié 6",  label: "UC1_NE · Sincrónico 5", type: "sesion" }
+      ]},
+      { label: "Sem 2", dates: "10–16",   isVac: false, acts: [] },
+      { label: "Sem 3", dates: "17–23",   isVac: false, acts: [
+        { date: "Mié 20", label: "UC1_NE · Sincrónico 6", type: "sesion" }
+      ]},
+      { label: "Sem 4", dates: "24–31",   isVac: false, acts: [
+        { date: "Lun 25", label: "Entrega_final_UC1_NE", type: "entrega" },
+        { date: "Mié 27", label: "SO_Evaluación y Ecosistemas de Impacto · S1", type: "opt", course: "eco" },
+        { date: "Jue 28", label: "SO_Evaluación y Ecosistemas de Impacto · S2", type: "opt", course: "eco" }
+      ]}
+    ]
+  },
+  {
+    month: "Junio",
+    weeks: [
+      { label: "Sem 1", dates: "31/5–6",  isVac: false, acts: [
+        { date: "Mié 3",  label: "UC2_SIR · Sincrónico 1", type: "sesion" },
+        { date: "Jue 4",  label: "SO_IA en Evaluación (14:00–16:00 hs)", type: "opt", course: "ia" }
+      ]},
+      { label: "Sem 2", dates: "7–13",    isVac: false, acts: [
+        { date: "Lun 8",  label: "Entrega SO_Evaluación y Ecosistemas de Impacto", type: "opt-entrega", course: "eco" }
+      ]},
+      { label: "Sem 3", dates: "14–20",   isVac: false, acts: [
+        { date: "Lun 15", label: "Entrega SO_IA en Evaluación", type: "opt-entrega", course: "ia" },
+        { date: "Mié 17", label: "UC2_SIR · Sincrónico 2 (*)", type: "sesion" }
+      ]},
+      { label: "Sem 4", dates: "21–27",   isVac: false, acts: [
+        { date: "Mié 24", label: "UC2_SIR · Sincrónico 3 (*)", type: "sesion" }
+      ]},
+      { label: "Sem 5", dates: "28–30",   isVac: false, acts: [] }
+    ]
+  },
+  {
+    month: "Julio",
+    weeks: [
+      { label: "Sem 1", dates: "1–4",     isVac: true,  acts: [] },
+      { label: "Sem 2", dates: "5–11",    isVac: true,  acts: [] },
+      { label: "Sem 3", dates: "12–18",   isVac: false, acts: [
+        { date: "Lun 13", label: "Entrega UC2_SIR · Herramienta B", type: "entrega" },
+        { date: "Mié 15", label: "UC2_SIR · Sincrónico 4", type: "sesion" }
+      ]},
+      { label: "Sem 4", dates: "19–25",   isVac: false, acts: [] },
+      { label: "Sem 5", dates: "26–31",   isVac: false, acts: [
+        { date: "Mié 29", label: "UC2_SIR · Sincrónico 5 (*)", type: "sesion" }
+      ]}
+    ]
+  },
+  {
+    month: "Agosto",
+    weeks: [
+      { label: "Sem 1", dates: "1–8",     isVac: false, acts: [
+        { date: "Mar 4",  label: "CO_Transiciones Productivas Sostenibles (**) · S1", type: "opt", course: "transiciones" },
+        { date: "Jue 6",  label: "CO_Transiciones Productivas Sostenibles (**) · S2", type: "opt", course: "transiciones" }
+      ]},
+      { label: "Sem 2", dates: "9–15",    isVac: false, acts: [
+        { date: "Lun 10", label: "Entrega UC2_SIR · Sello de Gestión Sostenible UEU-LATU", type: "entrega" },
+        { date: "Mar 11", label: "CO_Transiciones Productivas Sostenibles (**) · S3", type: "opt", course: "transiciones" },
+        { date: "Mié 12", label: "UC2_SIR · Sincrónico 6", type: "sesion" },
+        { date: "Jue 13", label: "CO_Transiciones Productivas Sostenibles (**) · S4", type: "opt", course: "transiciones" }
+      ]},
+      { label: "Sem 3", dates: "16–22",   isVac: false, acts: [
+        { date: "Mar 18", label: "CO_Transiciones Productivas Sostenibles (**) · S5", type: "opt", course: "transiciones" },
+        { date: "Jue 20", label: "CO_Transiciones Productivas Sostenibles (**) · S6", type: "opt", course: "transiciones" }
+      ]},
+      { label: "Sem 4", dates: "23–29",   isVac: false, acts: [
+        { date: "Mié 26", label: "UC2_SIR · Sincrónico 7 (*)", type: "sesion" },
+        { date: "Jue 27", label: "CO_Transiciones Productivas Sostenibles (**) · S7", type: "opt", course: "transiciones" }
+      ]},
+      { label: "Sem 5", dates: "30–31",   isVac: false, acts: [
+        { date: "Lun 31", label: "Entrega UC2_SIR · Final", type: "entrega" }
+      ]}
+    ]
+  },
+  {
+    month: "Setiembre",
+    weeks: [
+      { label: "Sem 1", dates: "1–5",     isVac: false, acts: [
+        { date: "Mar 1",  label: "CO_Transiciones Productivas Sostenibles (**) · S8", type: "opt", course: "transiciones" },
+        { date: "Jue 3",  label: "CO_Transiciones Productivas Sostenibles (**) · S9", type: "opt", course: "transiciones" }
+      ]},
+      { label: "Sem 2", dates: "6–12",    isVac: false, acts: [
+        { date: "Lun 7",  label: "SO_Observatorio FCEyA · S1", type: "opt", course: "obs" },
+        { date: "Mar 8",  label: "CO_Transiciones Productivas Sostenibles (**) · S10", type: "opt", course: "transiciones" },
+        { date: "Mié 9",  label: "SO_Observatorio FCEyA · S2", type: "opt", course: "obs" },
+        { date: "Jue 10", label: "CO_Transiciones Productivas Sostenibles (**) · S11", type: "opt", course: "transiciones" }
+      ]},
+      { label: "Sem 3", dates: "13–19",   isVac: false, acts: [
+        { date: "Mié 16", label: "UC3_Sincrónico 1", type: "sesion" },
+        { date: "Jue 17", label: "Entrega CO_Transiciones Productivas Sostenibles", type: "opt-entrega", course: "transiciones" }
+      ]},
+      { label: "Sem 4", dates: "20–26",   isVac: true,  acts: [] },
+      { label: "Sem 5", dates: "27–30",   isVac: false, acts: [
+        { date: "Lun 28", label: "Entrega SO_Observatorio FCEyA", type: "opt-entrega", course: "obs" },
+        { date: "Mié 30", label: "Seminario Transversal II", type: "seminario" }
+      ]}
+    ]
+  },
+  {
+    month: "Octubre",
+    weeks: [
+      { label: "Sem 1", dates: "1–10",    isVac: false, acts: [
+        { date: "Mar 6",  label: "CO_Abordajes Emergentes Sostenibilidad y Empresas · S1", type: "opt", course: "abordajes" },
+        { date: "Mié 7",  label: "UC3_Sincrónico 2", type: "sesion" }
+      ]},
+      { label: "Sem 2", dates: "11–17",   isVac: false, acts: [
+        { date: "Mar 13", label: "Entrega ST_II", type: "entrega" },
+        { date: "Mié 14", label: "CO_Introducción a las Finanzas Sostenibles · S1", type: "opt", course: "finanzas" }
+      ]},
+      { label: "Sem 3", dates: "18–24",   isVac: false, acts: [
+        { date: "Mar 20", label: "CO_Abordajes Emergentes Sostenibilidad y Empresas · S2", type: "opt", course: "abordajes" },
+        { date: "Mié 21", label: "UC3_Sincrónico 3", type: "sesion" }
+      ]},
+      { label: "Sem 4", dates: "25–31",   isVac: false, acts: [
+        { date: "Lun 26", label: "Tipo y objetivo TFM", type: "entrega" },
+        { date: "Mar 27", label: "CO_Abordajes Emergentes Sostenibilidad y Empresas · S3", type: "opt", course: "abordajes" },
+        { date: "Mié 28", label: "CO_Introducción a las Finanzas Sostenibles · S2", type: "opt", course: "finanzas" }
+      ]}
+    ]
+  },
+  {
+    month: "Noviembre",
+    weeks: [
+      { label: "Sem 1", dates: "1–7",     isVac: false, acts: [
+        { date: "Mar 3",  label: "Entrega CO_Abordajes Emergentes Sostenibilidad y Empresas", type: "opt-entrega", course: "abordajes" },
+        { date: "Mié 4",  label: "UC3_Sincrónico 4", type: "sesion" }
+      ]},
+      { label: "Sem 2", dates: "8–14",    isVac: false, acts: [
+        { date: "Lun 9",  label: "Entrega_UC3", type: "entrega" },
+        { date: "Mié 11", label: "CO_Introducción a las Finanzas Sostenibles · S3", type: "opt", course: "finanzas" }
+      ]},
+      { label: "Sem 3", dates: "15–21",   isVac: false, acts: [
+        { date: "Lun 16", label: "Plan de trabajo TFM", type: "entrega" }
+      ]},
+      { label: "Sem 4", dates: "22–28",   isVac: false, acts: [
+        { date: "Lun 23", label: "Entrega CO_Introducción a las Finanzas Sostenibles", type: "opt-entrega", course: "finanzas" }
+      ]},
+      { label: "Sem 5", dates: "29–30",   isVac: false, acts: [] }
+    ]
+  }
+];
+
+const cal = document.getElementById('cal');
+
+function countActs(weeks) {
+  return weeks.reduce((n, w) =>
+    n + w.acts.filter(a => !a.course).length, 0);
+}
+
+data.forEach((m, mi) => {
+  const total = countActs(m.weeks);
+  const isFirst = mi === 0;
+  const isLast  = mi === data.length - 1;
+
+  let weeksHTML = '';
+
+  m.weeks.forEach(w => {
+    const vacMeta = w.isVac ? ' is-vac' : '';
+    const obligActs  = w.acts.filter(a => !a.course);
+    const optActs    = w.acts.filter(a =>  a.course);
+    const hasOblig   = obligActs.length > 0;
+
+    if (w.isVac) {
+      weeksHTML += `
+        <div class="week-row">
+          <div class="week-meta is-vac">
+            <div class="week-label">${w.label}</div>
+            <div class="week-dates">${w.dates}</div>
+          </div>
+          <div class="week-acts">
+            <div class="act"><span class="act-pill pill-vac">Vacaciones</span></div>
+            ${optActs.map(a => `
+              <div class="act act-opt" data-course="${a.course}">
+                <span class="act-date">${a.date}</span>
+                <span class="act-pill ${pillClass[a.type]}">${a.label}</span>
+              </div>`).join('')}
+          </div>
+        </div>`;
+    } else if (!hasOblig && optActs.length === 0) {
+      weeksHTML += `
+        <div class="week-row week-empty">
+          <div class="week-meta">
+            <div class="week-label">${w.label}</div>
+            <div class="week-dates">${w.dates}</div>
+          </div>
+          <div class="week-acts"><span class="dash-empty" style="color:#bbb;font-style:italic;font-size:0.7rem">—</span></div>
+        </div>`;
+    } else {
+      // Sort all acts by day number for chronological order
+      const dayOrder = {'Dom':0,'Lun':1,'Mar':2,'Mié':3,'Jue':4,'Vie':5,'Sáb':6};
+      const allActs = [...w.acts].sort((a, b) => {
+        const dayA = parseInt(a.date.replace(/\D/g,'')) || 0;
+        const dayB = parseInt(b.date.replace(/\D/g,'')) || 0;
+        return dayA - dayB;
+      });
+      const allHTML = allActs.map(a => {
+        const isOpt = !!a.course;
+        const cls = isOpt ? `act act-opt" data-course="${a.course}` : 'act';
+        return `<div class="${cls}">
+           <span class="act-date">${a.date}</span>
+           <span class="act-pill ${pillClass[a.type]}">${a.label}</span>
+         </div>`;
+      }).join('');
+      const dashHTML = !hasOblig
+        ? `<span class="dash-empty" style="color:#bbb;font-style:italic;font-size:0.7rem">—</span>`
+        : '';
+
+      weeksHTML += `
+        <div class="week-row">
+          <div class="week-meta${vacMeta}">
+            <div class="week-label">${w.label}</div>
+            <div class="week-dates">${w.dates}</div>
+          </div>
+          <div class="week-acts">${dashHTML}${allHTML}</div>
+        </div>`;
+    }
+  });
+
+  const br = isFirst ? '8px 8px 0 0' : isLast ? '0 0 8px 8px' : '0';
+
+  cal.innerHTML += `
+    <div class="month-block" style="border-radius:${br}" id="mb-${mi}">
+      <div class="month-head" onclick="toggle(${mi})">
+        <h2>${m.month} 2026</h2>
+        <div class="meta">
+          <span class="chevron">▾</span>
+        </div>
+      </div>
+      <div class="month-body">${weeksHTML}</div>
+    </div>`;
+});
+
+function toggle(i) {
+  document.getElementById('mb-' + i).classList.toggle('collapsed');
+}
+</script>
+</body>
+</html>
